@@ -2,31 +2,318 @@
 <html lang="ur" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>خبرنامہ | Khabarnama</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>خبر نامہ | Inshorts Urdu</title>
   
-  <!-- Urdu & English Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu:wght@400;700&family=Noto+Sans+Arabic:wght@400;600;700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-  
-  <!-- Font Awesome Icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
   <style>
     :root {
-      --primary-color: #ff9933;
-      --secondary-color: #138808;
-      --navy-blue: #000080;
-      --bg-color: #f4f6f9;
+      --primary: #ff9933;
+      --green: #138808;
+      --bg: #f1f5f9;
       --card-bg: #ffffff;
-      --text-main: #1f2937;
-      --text-muted: #6b7280;
-      --border-color: #e5e7eb;
-      --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+      --text: #0f172a;
+      --muted: #64748b;
+      --border: #e2e8f0;
     }
 
     [data-theme="dark"] {
-      --bg-color: #0f172a;
+      --bg: #0f172a;
       --card-bg: #1e293b;
-      --text-main: #f8fafc;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --border: #334155;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      min-height: 100vh;
+      font-family: 'Noto Sans Arabic', Tahoma, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: background 0.2s ease;
+    }
+
+    header {
+      width: 100%;
+      height: 58px;
+      background: var(--card-bg);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 1.2rem;
+      font-weight: 700;
+    }
+
+    .brand span.flag {
+      font-size: 1.3rem;
+    }
+
+    .brand span.title {
+      background: linear-gradient(135deg, var(--primary), var(--green));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .theme-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: 1px solid var(--border);
+      background: var(--card-bg);
+      color: var(--text);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .filter-bar {
+      width: 100%;
+      background: var(--card-bg);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      gap: 8px;
+      padding: 8px 16px;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .filter-bar::-webkit-scrollbar { display: none; }
+
+    .chip {
+      padding: 6px 14px;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.85rem;
+      white-space: nowrap;
+    }
+
+    .chip.active {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #fff;
+    }
+
+    .feed-container {
+      width: 100%;
+      max-width: 520px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .card-img-wrap {
+      width: 100%;
+      height: 220px;
+      position: relative;
+      background: #1e293b;
+    }
+
+    .card-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .card-tag {
+      position: absolute;
+      bottom: 10px;
+      right: 10px;
+      background: rgba(0,0,0,0.75);
+      color: #fff;
+      padding: 3px 10px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+    }
+
+    .card-body {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .card-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      line-height: 1.6;
+    }
+
+    .card-desc {
+      font-size: 0.95rem;
+      line-height: 1.8;
+      color: var(--muted);
+    }
+
+    .card-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 10px;
+      border-top: 1px solid var(--border);
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="brand">
+      <span class="flag">🇮🇳</span>
+      <span class="title">خبر نامہ</span>
+    </div>
+    <button class="theme-btn" id="themeBtn" title="تھیم تبدیل کریں">
+      <i class="fa-solid fa-moon"></i>
+    </button>
+  </header>
+
+  <nav class="filter-bar" id="filterBar">
+    <button class="chip active" data-cat="all">تمام خبریں</button>
+    <button class="chip" data-cat="national">قومی (ہندوستان)</button>
+    <button class="chip" data-cat="tech">ٹیکنالوجی و سائنس</button>
+    <button class="chip" data-cat="economy">معیشت</button>
+    <button class="chip" data-cat="sports">کھیل</button>
+  </nav>
+
+  <main class="feed-container" id="feedContainer">
+    <!-- Populated by JS -->
+  </main>
+
+  <script>
+    const newsList = [
+      {
+        id: 1,
+        cat: "tech",
+        tag: "سائنس و ٹیکنالوجی",
+        title: "اسرو (ISRO) کا گگن یان مشن: خلا میں انسان بھیجنے کی تیاریاں حتمی مرحلے میں",
+        desc: "انڈین اسپیس ریسرچ آرگنائزیشن نے گگن یان مشن کے لیے تمام اہم حفاظتی جانچ کامیابی کے ساتھ مکمل کر لی ہے۔ اس مشن کے تحت ہندوستانی خلاباز لو ارتھ مدار کا سفر کریں گے۔",
+        img: "https://images.unsplash.com/photo-1517976487507-5b3b4b45a742?auto=format&fit=crop&w=800&q=80",
+        src: "نئی دہلی",
+        time: "1 گھنٹہ پہلے"
+      },
+      {
+        id: 2,
+        cat: "economy",
+        tag: "معیشت و تجارت",
+        title: "یو پی آئی (UPI) نے بین الاقوامی سطح پر نیا سنگ میل عبور کر لیا",
+        desc: "ہندوستان کا ڈیجیٹل پیمنٹ سسٹم یو پی آئی اب فرانس، متحدہ عرب امارات اور ماریشس سمیت کئی ممالک میں فعال ہے، جس سے ہندوستانی سیاحوں کو روپے میں ادائیگی کی سہولت مل رہی ہے۔",
+        img: "https://images.unsplash.com/photo-1559526324-4b87b5e36e44?auto=format&fit=crop&w=800&q=80",
+        src: "ممبئی",
+        time: "2 گھنٹے پہلے"
+      },
+      {
+        id: 3,
+        cat: "sports",
+        tag: "کھیل و کرکٹ",
+        title: "ٹیم انڈیا کی شاندار فتح: نوجوان کھلاڑیوں کا زبردست کارنامہ",
+        desc: "ہندوستانی کرکٹ ٹیم نے شاندار کھیل کا مظاہرہ کرتے ہوئے فتح حاصل کر لی۔ بلے بازوں اور گیند بازوں کے باہمی تال میل نے میچ کا پانسہ پلٹ دیا۔",
+        img: "https://images.unsplash.com/photo-1531415074868-036b107e775a?auto=format&fit=crop&w=800&q=80",
+        src: "کھیل ڈیسک",
+        time: "4 گھنٹے پہلے"
+      },
+      {
+        id: 4,
+        cat: "national",
+        tag: "قومی خبریں",
+        title: "وندے بھارت ٹرینوں کے نئے روٹس کا افتتاح، سفر کا دورانیہ کم",
+        desc: "ریلوے نیٹ ورک میں تیز رفتار وندے بھارت ٹرینوں کے اضافے سے مسافروں کے سفری وقت میں نمایاں کمی واقع ہوئی ہے اور جدید سہولیات فراہم کی جا رہی ہیں۔",
+        img: "https://images.unsplash.com/photo-1474487548417-781cb71495f3?auto=format&fit=crop&w=800&q=80",
+        src: "نئی دہلی",
+        time: "5 گھنٹے پہلے"
+      }
+    ];
+
+    const feed = document.getElementById('feedContainer');
+
+    function renderFeed(cat = "all") {
+      feed.innerHTML = '';
+      const filtered = cat === "all" ? newsList : newsList.filter(n => n.cat === cat);
+      
+      filtered.forEach(news => {
+        const item = document.createElement('article');
+        item.className = 'card';
+        item.innerHTML = `
+          <div class="card-img-wrap">
+            <img class="card-img" src="${news.img}" alt="${news.title}">
+            <span class="card-tag">${news.tag}</span>
+          </div>
+          <div class="card-body">
+            <h2 class="card-title">${news.title}</h2>
+            <p class="card-desc">${news.desc}</p>
+            <div class="card-meta">
+              <span><strong>${news.src}</strong> • ${news.time}</span>
+              <button onclick="readItem('${news.title}')" style="background:none;border:none;color:inherit;cursor:pointer;">
+                <i class="fa-solid fa-volume-high"></i> سنیں
+              </button>
+            </div>
+          </div>
+        `;
+        feed.appendChild(item);
+      });
+    }
+
+    document.getElementById('filterBar').addEventListener('click', (e) => {
+      const chip = e.target.closest('.chip');
+      if (!chip) return;
+      document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+      renderFeed(chip.dataset.cat);
+    });
+
+    document.getElementById('themeBtn').onclick = () => {
+      const isDark = document.body.getAttribute('data-theme') === 'dark';
+      document.body.setAttribute('data-theme', isDark ? 'light' : 'dark');
+    };
+
+    window.readItem = (text) => {
+      if (!('speechSynthesis' in window)) return;
+      window.speechSynthesis.cancel();
+      const utt = new SpeechSynthesisUtterance(text);
+      utt.lang = 'ur-IN';
+      window.speechSynthesis.speak(utt);
+    };
+
+    renderFeed();
+  </script>
+</body>
+</html>
