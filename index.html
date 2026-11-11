@@ -326,36 +326,51 @@
   </main>
 
   <script>
-    const container = document.getElementById('snapContainer');
+  const SUPABASE_URL = "https://YOUR_PROJECT.supabase.co";
+  const SUPABASE_ANON_KEY = "YOUR_ANON_KEY";
 
-    function scrollCard(direction) {
-      const cardHeight = window.innerHeight;
-      container.scrollBy({ top: direction * cardHeight, behavior: 'smooth' });
-    }
-
-    // Keyboard Arrow Key Support
-    window.addEventListener('keydown', (e) => {
-      if (e.key === 'ArrowDown') scrollCard(1);
-      if (e.key === 'ArrowUp') scrollCard(-1);
-    });
-
-    // Voice Read-Aloud
-    function speakText(text) {
-      if (!('speechSynthesis' in window)) return;
-      window.speechSynthesis.cancel();
-      const utt = new SpeechSynthesisUtterance(text);
-      utt.lang = 'ur-IN';
-      window.speechSynthesis.speak(utt);
-    }
-
-    // Web Share API
-    function shareArticle(title) {
-      if (navigator.share) {
-        navigator.share({ title: title, url: window.location.href });
-      } else {
-        alert('لنک کاپی کر لیا گیا ہے!');
+  async function loadLiveNews() {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/news?select=*&order=created_at.desc&limit=20`, {
+      headers: {
+        "apikey": SUPABASE_ANON_KEY,
+        "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
       }
+    });
+    const items = await res.json();
+    const container = document.getElementById('snapContainer');
+    container.innerHTML = '';
+
+    if (items.length === 0) {
+      container.innerHTML = '<div style="color:white;text-align:center;padding:50px;">کوئی خبر دستیاب نہیں ہے</div>';
+      return;
     }
+
+    items.forEach(item => {
+      const section = document.createElement('section');
+      section.className = 'story-page';
+      section.innerHTML = `
+        <article class="inshorts-card">
+          <div class="card-image-box">
+            <img class="card-image" src="${item.image_url}" alt="News Image">
+            <span class="card-tag">${item.source_name || 'خبر'}</span>
+          </div>
+          <div class="card-body">
+            <h2 class="story-title">${item.title}</h2>
+            <p class="story-desc">${item.summary}</p>
+            <div class="card-footer">
+              <a href="${item.source_url}" target="_blank" style="color:var(--primary);text-decoration:none;">تفصیلات پڑھیں</a>
+              <button onclick="speakText('${item.title}')" style="background:none;border:none;color:white;cursor:pointer;">
+                <i class="fa-solid fa-volume-high"></i>
+              </button>
+            </div>
+          </div>
+        </article>
+      `;
+      container.appendChild(section);
+    });
+  }
+
+  loadLiveNews();
   </script>
 </body>
 </html>
