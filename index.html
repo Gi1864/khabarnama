@@ -8,7 +8,7 @@
   <link rel="manifest" href="manifest.json">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
   <style>
@@ -33,7 +33,7 @@
       height: 100%;
       width: 100%;
       overflow: hidden;
-      font-family: 'Noto Sans Arabic', Tahoma, sans-serif;
+      font-family: 'Noto Nastaliq Urdu', serif, Tahoma, sans-serif;
       background-color: var(--bg);
       color: var(--text);
     }
@@ -127,6 +127,7 @@
       font-size: 0.75rem;
       padding: 3px 10px;
       border-radius: 4px;
+      line-height: 1.8;
     }
 
     .card-body {
@@ -139,16 +140,16 @@
     }
 
     .story-title {
-      font-size: 1.15rem;
+      font-size: 1.25rem;
       font-weight: 700;
-      line-height: 1.6;
+      line-height: 2.1;
       margin-bottom: 8px;
       color: #ffffff;
     }
 
     .story-desc {
-      font-size: 0.95rem;
-      line-height: 1.8;
+      font-size: 1.05rem;
+      line-height: 2.3;
       color: var(--muted);
       overflow-y: auto;
       scrollbar-width: none;
@@ -161,9 +162,10 @@
       align-items: center;
       padding-top: 10px;
       border-top: 1px solid var(--border);
-      font-size: 0.8rem;
+      font-size: 0.85rem;
       color: var(--muted);
       flex-shrink: 0;
+      line-height: 2;
     }
 
     .action-icons {
@@ -211,6 +213,7 @@
       color: var(--muted);
       gap: 12px;
       font-size: 1.1rem;
+      line-height: 2.2;
     }
 
     @media (max-width: 600px) {
@@ -231,7 +234,7 @@
       <span>🇮🇳</span>
       <span class="brand-text">خبر نامہ</span>
     </div>
-    <div style="font-size: 0.8rem; color: var(--muted);">
+    <div style="font-size: 0.85rem; color: var(--muted); line-height: 1.8;">
       ایک وقت میں ایک خبر ⬇
     </div>
   </header>
@@ -337,7 +340,6 @@
           return;
         }
 
-        // Demo backup cards so scrolling works immediately if database only has 1 row
         if (news.length === 1) {
           news.push({
             title: "بھارت اور آسٹریلیا کے درمیان سیریز: ٹیم انڈیا کی شاندار شروعات",
