@@ -14,28 +14,8 @@ if not SUPABASE_URL or not SUPABASE_KEY or not GEMINI_KEY:
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 genai.configure(api_key=GEMINI_KEY)
 
-# Dynamically find the active model supported by this API key
-ACTIVE_MODEL = None
-try:
-    print("Listing available models for this API key...")
-    available_models = [
-        m.name for m in genai.list_models() 
-        if "generateContent" in m.supported_generation_methods
-    ]
-    print(f"Supported models found: {available_models}")
-    
-    # Prioritize flash models, then any available generation model
-    for name in available_models:
-        if "flash" in name:
-            ACTIVE_MODEL = name
-            break
-    if not ACTIVE_MODEL and len(available_models) > 0:
-        ACTIVE_MODEL = available_models[0]
-        
-    print(f"Selected active model: {ACTIVE_MODEL}")
-except Exception as e:
-    print(f"Error listing models: {e}")
-    ACTIVE_MODEL = "gemini-1.5-flash"
+# Use current active generation model recommended by Google AI Studio
+model = genai.GenerativeModel("gemini-3.8-flash")
 
 RSS_FEEDS = [
     {
@@ -54,9 +34,6 @@ def clean_html(text):
     return re.sub(r'<[^>]+>', '', text).strip()
 
 def summarize_urdu(title, description):
-    if not ACTIVE_MODEL:
-        return None
-        
     prompt = f"""
     You are an Urdu news editor for a mobile Inshorts-style app in India.
     Summarize this news article strictly in natural, readable modern Urdu.
@@ -67,12 +44,11 @@ def summarize_urdu(title, description):
     Details: {description}
     """
     try:
-        m = genai.GenerativeModel(ACTIVE_MODEL)
-        res = m.generate_content(prompt)
+        res = model.generate_content(prompt)
         if res and res.text:
             return res.text.strip()
     except Exception as err:
-        print(f"❌ Gemini Error with {ACTIVE_MODEL}: {err}")
+        print(f"❌ Gemini Error: {err}")
     return None
 
 def run():
