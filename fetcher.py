@@ -9,16 +9,33 @@ SUPABASE_KEY = os.environ.get("SUPABASE_SERVICE_ROLE_KEY", "").strip().strip("'\
 GEMINI_KEY = os.environ.get("GEMINI_API_KEY", "").strip().strip("'\"")
 
 if not SUPABASE_URL or not SUPABASE_KEY or not GEMINI_KEY:
-    raise ValueError("Missing secrets in environment variables.")
+    raise ValueError("Missing secrets! Check GitHub Action secrets.")
 
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 genai.configure(api_key=GEMINI_KEY)
 
-# Use dynamic model resolution with reliable fallback
+# Dynamically find the active model supported by this API key
+ACTIVE_MODEL = None
 try:
-    model = genai.GenerativeModel("gemini-1.5-flash-latest")
-except Exception:
-    model = genai.GenerativeModel("gemini-pro")
+    print("Listing available models for this API key...")
+    available_models = [
+        m.name for m in genai.list_models() 
+        if "generateContent" in m.supported_generation_methods
+    ]
+    print(f"Supported models found: {available_models}")
+    
+    # Prioritize flash models, then any available generation model
+    for name in available_models:
+        if "flash" in name:
+            ACTIVE_MODEL = name
+            break
+    if not ACTIVE_MODEL and len(available_models) > 0:
+        ACTIVE_MODEL = available_models[0]
+        
+    print(f"Selected active model: {ACTIVE_MODEL}")
+except Exception as e:
+    print(f"Error listing models: {e}")
+    ACTIVE_MODEL = "gemini-1.5-flash"
 
 RSS_FEEDS = [
     {
@@ -37,26 +54,25 @@ def clean_html(text):
     return re.sub(r'<[^>]+>', '', text).strip()
 
 def summarize_urdu(title, description):
+    if not ACTIVE_MODEL:
+        return None
+        
     prompt = f"""
     You are an Urdu news editor for a mobile Inshorts-style app in India.
     Summarize this news article strictly in natural, readable modern Urdu.
-    Length: between 60 to 80 words.
+    Length: strictly between 60 to 80 words.
     Return ONLY the Urdu summary text. No headlines, no English words, no preamble, and no markdown.
 
     Title: {title}
     Details: {description}
     """
-    # Try flash-latest, then standard fallbacks
-    for model_name in ["gemini-1.5-flash-latest", "gemini-1.5-pro-latest", "gemini-pro"]:
-        try:
-            m = genai.GenerativeModel(model_name)
-            res = m.generate_content(prompt)
-            if res and res.text:
-                return res.text.strip()
-        except Exception as err:
-            print(f"Failed with {model_name}: {err}")
-            continue
-
+    try:
+        m = genai.GenerativeModel(ACTIVE_MODEL)
+        res = m.generate_content(prompt)
+        if res and res.text:
+            return res.text.strip()
+    except Exception as err:
+        print(f"❌ Gemini Error with {ACTIVE_MODEL}: {err}")
     return None
 
 def run():
@@ -89,7 +105,6 @@ def run():
             summary = summarize_urdu(title, desc or title)
 
             if not summary:
-                print("⚠️ Summarization failed across all models, skipping.")
                 continue
 
             payload = {
