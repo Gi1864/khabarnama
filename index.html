@@ -1,93 +1,365 @@
-import os
-import re
-import feedparser
-import google.generativeai as genai
-from supabase import create_client, Client
+<!DOCTYPE html>
+<html lang="ur" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>خبر نامہ | Inshorts Urdu</title>
 
-SUPABASE_URL = os.environ.get("SUPABASE_URL", "").strip().strip("'\"")
-SUPABASE_KEY = os.environ.get("SUPABASE_SERVICE_ROLE_KEY", "").strip().strip("'\"")
-GEMINI_KEY = os.environ.get("GEMINI_API_KEY", "").strip().strip("'\"")
+  <link rel="manifest" href="manifest.json">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-if not SUPABASE_URL or not SUPABASE_KEY or not GEMINI_KEY:
-    raise ValueError("Missing secrets in environment variables.")
-
-supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
-genai.configure(api_key=GEMINI_KEY)
-model = genai.GenerativeModel("gemini-1.5-flash")
-
-RSS_FEEDS = [
-    {
-        "source": "گوگل نیوز اردو",
-        "url": "https://news.google.com/rss?hl=ur&gl=IN&ceid=IN:ur"
-    },
-    {
-        "source": "بی بی سی اردو",
-        "url": "https://feeds.bbci.co.uk/urdu/rss.xml"
+  <style>
+    :root {
+      --primary: #ff9933;
+      --secondary: #138808;
+      --bg: #0b1120;
+      --card-bg: #1e293b;
+      --text: #f8fafc;
+      --desc-text: #e2e8f0;
+      --muted: #94a3b8;
+      --border: #334155;
     }
-]
 
-def clean_html(text):
-    if not text:
-        return ""
-    return re.sub(r'<[^>]+>', '', text).strip()
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
 
-def summarize_urdu(title, description):
-    prompt = f"""
-    You are an Urdu news editor for a mobile Inshorts-style app in India.
-    Summarize this news article strictly in natural, readable modern Urdu.
-    Length: between 60 to 100 words.
-    Return ONLY the Urdu summary text. No headlines, no English words, no preamble, and no markdown headers.
+    html, body {
+      height: 100%;
+      width: 100%;
+      overflow: hidden;
+      font-family: 'Noto Nastaliq Urdu', serif, Tahoma, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+    }
 
-    Title: {title}
-    Details: {description}
-    """
-    try:
-        res = model.generate_content(prompt)
-        return res.text.strip()
-    except Exception as err:
-        print(f"Gemini error: {err}")
-        return None
+    header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 56px;
+      background: rgba(11, 17, 32, 0.95);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 18px;
+      z-index: 100;
+    }
 
-def run():
-    total_added = 0
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 700;
+      font-size: 1.2rem;
+    }
 
-    for feed in RSS_FEEDS:
-        print(f"--> Fetching: {feed['source']}")
-        parsed = feedparser.parse(feed["url"])
-        print(f"Found {len(parsed.entries)} items.")
+    .brand-text {
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
 
-        for entry in parsed.entries[:6]:
-            link = getattr(entry, "link", None)
-            title = getattr(entry, "title", "").strip()
-            if not link or not title:
-                continue
+    .snap-container {
+      height: 100vh;
+      width: 100vw;
+      overflow-y: scroll;
+      scroll-snap-type: y mandatory;
+      scroll-behavior: smooth;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+    .snap-container::-webkit-scrollbar { display: none; }
 
-            # Prevent duplicate entries
-            existing = supabase.table("news").select("id").eq("source_url", link).execute()
-            if existing.data and len(existing.data) > 0:
-                print(f"Skipping duplicate: {title[:25]}...")
-                continue
+    .story-page {
+      height: 100vh;
+      width: 100%;
+      scroll-snap-align: start;
+      scroll-snap-stop: always;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 68px 16px 16px 16px;
+    }
 
-            desc = clean_html(getattr(entry, "summary", "") or getattr(entry, "description", ""))
+    .inshorts-card {
+      width: 100%;
+      max-width: 460px;
+      height: 100%;
+      max-height: 640px;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 22px 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+    }
 
-            print(f"Summarizing (60-100 words): {title[:30]}...")
-            summary = summarize_urdu(title, desc or title)
+    .card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+    }
 
-            if not summary:
-                continue
+    .source-badge {
+      background: rgba(255, 153, 51, 0.12);
+      color: var(--primary);
+      border: 1px solid rgba(255, 153, 51, 0.3);
+      font-size: 0.8rem;
+      padding: 2px 10px;
+      border-radius: 6px;
+      line-height: 1.9;
+    }
 
-            payload = {
-                "title": title,
-                "summary": summary,
-                "source_name": feed["source"],
-                "source_url": link
-            }
+    .card-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      padding: 16px 0 10px 0;
+      overflow-y: auto;
+      scrollbar-width: none;
+    }
+    .card-content::-webkit-scrollbar { display: none; }
 
-            supabase.table("news").insert(payload).execute()
-            print(f"Successfully saved: {title[:25]}")
-            total_added += 1
+    .story-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      line-height: 2.1;
+      margin-bottom: 12px;
+      color: #ffffff;
+    }
 
-    print(f"Job complete. Added {total_added} stories.")
+    .story-desc {
+      font-size: 1.05rem;
+      line-height: 2.3;
+      color: var(--desc-text);
+      text-align: justify;
+    }
 
-if __name__ == "__main__":
-    run()
+    .card-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+      font-size: 0.85rem;
+      color: var(--muted);
+      line-height: 1.9;
+    }
+
+    .read-more-link {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 600;
+    }
+    .read-more-link:hover { opacity: 0.85; }
+
+    .action-icons {
+      display: flex;
+      gap: 18px;
+    }
+
+    .action-icons i {
+      cursor: pointer;
+      font-size: 1.15rem;
+      color: var(--muted);
+      transition: color 0.2s;
+    }
+    .action-icons i:hover { color: var(--primary); }
+
+    .desktop-arrows {
+      position: fixed;
+      left: 24px;
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      z-index: 100;
+    }
+
+    .arrow-btn {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .arrow-btn:hover { background: var(--primary); color: #000; }
+
+    .status-msg {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 70vh;
+      color: var(--muted);
+      gap: 12px;
+      font-size: 1.1rem;
+      line-height: 2.2;
+    }
+
+    @media (max-width: 600px) {
+      .desktop-arrows { display: none; }
+      .story-page { padding: 62px 12px 12px 12px; }
+      .inshorts-card {
+        max-height: 100%;
+        border-radius: 16px;
+        padding: 18px 16px;
+      }
+      .story-title {
+        font-size: 1.18rem;
+        line-height: 2.0;
+      }
+      .story-desc {
+        font-size: 1.0rem;
+        line-height: 2.2;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="brand">
+      <span>🇮🇳</span>
+      <span class="brand-text">خبر نامہ</span>
+    </div>
+    <div style="font-size: 0.9rem; font-weight: 600; color: var(--muted); letter-spacing: 0.5px; font-family: sans-serif;">
+      Khabarnama
+    </div>
+  </header>
+
+  <div class="desktop-arrows">
+    <button class="arrow-btn" onclick="scrollCard(-1)" title="پچھلی خبر"><i class="fa-solid fa-chevron-up"></i></button>
+    <button class="arrow-btn" onclick="scrollCard(1)" title="اگلی خبر"><i class="fa-solid fa-chevron-down"></i></button>
+  </div>
+
+  <main class="snap-container" id="snapContainer">
+    <div class="status-msg">
+      <i class="fa-solid fa-circle-notch fa-spin fa-2x" style="color: var(--primary);"></i>
+      <p>خبریں لوڈ ہو رہی ہیں...</p>
+    </div>
+  </main>
+
+  <script>
+    const SUPABASE_URL = "https://ddgpqqazihycjvkwrusd.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRkZ3BxcWF6aWh5Y2p2a3dydXNkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQ0MDIxNTksImV4cCI6MjEwOTk3ODE1OX0.1Y_en06XpkwuekO9ciVYwPCGcJPWypviAmwuSAjNalc";
+
+    const container = document.getElementById('snapContainer');
+
+    function scrollCard(direction) {
+      const cardHeight = window.innerHeight;
+      container.scrollBy({ top: direction * cardHeight, behavior: 'smooth' });
+    }
+
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowDown') scrollCard(1);
+      if (e.key === 'ArrowUp') scrollCard(-1);
+    });
+
+    function speakText(text) {
+      if (!('speechSynthesis' in window)) return;
+      window.speechSynthesis.cancel();
+      const utt = new SpeechSynthesisUtterance(text);
+      utt.lang = 'ur-IN';
+      window.speechSynthesis.speak(utt);
+    }
+
+    function shareArticle(title, url) {
+      if (navigator.share) {
+        navigator.share({ title: title, url: url || window.location.href });
+      } else {
+        navigator.clipboard.writeText(url || window.location.href);
+        alert('لنک کاپی کر لیا گیا!');
+      }
+    }
+
+    function renderStories(newsList) {
+      container.innerHTML = '';
+      newsList.forEach(item => {
+        const page = document.createElement('section');
+        page.className = 'story-page';
+        page.innerHTML = `
+          <article class="inshorts-card">
+            <div class="card-top">
+              <span class="source-badge">${item.source_name || 'قومی'}</span>
+              <span style="font-size: 0.8rem; color: var(--muted); line-height: 1.9;">تازہ ترین</span>
+            </div>
+            
+            <div class="card-content">
+              <h2 class="story-title">${item.title}</h2>
+              <p class="story-desc">${item.summary}</p>
+            </div>
+
+            <div class="card-footer">
+              <a href="${item.source_url || '#'}" target="_blank" class="read-more-link">مکمل تفصیل پڑھیں ↗</a>
+              <div class="action-icons">
+                <i class="fa-solid fa-volume-high" onclick="speakText('${item.title.replace(/'/g, "\\'")}')" title="سنیں"></i>
+                <i class="fa-regular fa-share-from-square" onclick="shareArticle('${item.title.replace(/'/g, "\\'")}', '${item.source_url || ''}')" title="شیئر"></i>
+              </div>
+            </div>
+          </article>
+        `;
+        container.appendChild(page);
+      });
+    }
+
+    async function fetchNews() {
+      try {
+        const response = await fetch(`${SUPABASE_URL}/rest/v1/news?select=*&order=created_at.desc&limit=30`, {
+          headers: {
+            "apikey": SUPABASE_ANON_KEY,
+            "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
+          }
+        });
+
+        if (!response.ok) throw new Error(`HTTP error: ${response.status}`);
+        let news = await response.json();
+
+        if (!news || news.length === 0) {
+          container.innerHTML = `
+            <div class="status-msg">
+              <i class="fa-regular fa-newspaper fa-2x"></i>
+              <p>فی الحال کوئی خبر دستیاب نہیں ہے۔</p>
+            </div>
+          `;
+          return;
+        }
+
+        renderStories(news);
+
+      } catch (err) {
+        console.error("Fetch error:", err);
+        container.innerHTML = `
+          <div class="status-msg">
+            <i class="fa-solid fa-triangle-exclamation fa-2x" style="color: #ef4444;"></i>
+            <p>خبریں لوڈ کرنے میں مسئلہ پیش آیا۔ براہِ کرم انٹرنیٹ کنکشن چیک کریں۔</p>
+          </div>
+        `;
+      }
+    }
+
+    fetchNews();
+  </script>
+</body>
+</html>
