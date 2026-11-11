@@ -4,114 +4,103 @@ import feedparser
 import google.generativeai as genai
 from supabase import create_client, Client
 
-# 1. Clean and validate environment variables
-raw_url = os.environ.get("SUPABASE_URL", "")
-raw_key = os.environ.get("SUPABASE_SERVICE_ROLE_KEY", "")
-raw_gemini = os.environ.get("GEMINI_API_KEY", "")
+# Environment variables
+SUPABASE_URL = os.environ.get("SUPABASE_URL", "").strip().strip("'\"")
+SUPABASE_KEY = os.environ.get("SUPABASE_SERVICE_ROLE_KEY", "").strip().strip("'\"")
+GEMINI_KEY = os.environ.get("GEMINI_API_KEY", "").strip().strip("'\"")
 
-SUPABASE_URL = raw_url.strip().strip("'\"")
-SUPABASE_KEY = raw_key.strip().strip("'\"")
-GEMINI_KEY = raw_gemini.strip().strip("'\"")
+if not SUPABASE_URL or not SUPABASE_KEY or not GEMINI_KEY:
+    raise ValueError("Missing one or more required environment variables.")
 
-if not SUPABASE_URL.startswith("http"):
-    raise ValueError(f"SUPABASE_URL is invalid or missing: '{SUPABASE_URL}'")
-
-if not SUPABASE_KEY:
-    raise ValueError("SUPABASE_SERVICE_ROLE_KEY is missing from GitHub Secrets.")
-
-if not GEMINI_KEY:
-    raise ValueError("GEMINI_API_KEY is missing from GitHub Secrets.")
-
-# 2. Initialize Supabase and Gemini
-print("Connecting to Supabase...")
+# Clients
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
-
-print("Configuring Gemini...")
 genai.configure(api_key=GEMINI_KEY)
 model = genai.GenerativeModel("gemini-1.5-flash")
 
-# 3. RSS Feeds for Indian News
+# Top Indian News RSS Feeds
 RSS_FEEDS = [
-    {"source": "NDTV India", "url": "https://feeds.feedburner.com/ndtvkhabar"},
-    {"source": "BBC Urdu", "url": "https://feeds.bbci.co.uk/urdu/rss.xml"}
+    {
+        "source": "گوگل نیوز اردو",
+        "url": "https://news.google.com/rss?hl=ur&gl=IN&ceid=IN:ur"
+    },
+    {
+        "source": "بی بی سی اردو",
+        "url": "https://feeds.bbci.co.uk/urdu/rss.xml"
+    }
 ]
 
-def clean_html(raw_html):
-    cleanr = re.compile('<.*?>')
-    return re.sub(cleanr, '', raw_html).strip()
+DEFAULT_IMAGE = "https://images.unsplash.com/photo-1504711434969-e33886168f5c?auto=format&fit=crop&w=800&q=80"
 
-def summarize_to_urdu(title, text):
+def clean_html(text):
+    if not text:
+        return ""
+    return re.sub(r'<[^>]+>', '', text).strip()
+
+def summarize_urdu(title, description):
     prompt = f"""
-    You are an expert Urdu news editor for an Inshorts-style mobile app in India.
-    Summarize the following news item strictly in pure, natural Urdu.
-    
-    Rules:
-    - Maximum 50 to 60 words.
-    - Write only the summary in Urdu script. No preamble, no English words, no markdown headings.
-    - Focus on the factual core: what happened, where, and why it matters to Indian readers.
+    You are an Urdu news editor for a mobile Inshorts-style app in India.
+    Summarize this news article strictly in high quality, modern Urdu.
+    Length: exactly 40 to 60 words.
+    Return ONLY the Urdu summary text. No greetings, no English, no markdown formatting.
 
     Title: {title}
-    Story: {text}
+    Details: {description}
     """
     try:
-        response = model.generate_content(prompt)
-        return response.text.strip()
-    except Exception as e:
-        print(f"Gemini generation error: {e}")
+        res = model.generate_content(prompt)
+        return res.text.strip()
+    except Exception as err:
+        print(f"Gemini error: {err}")
         return None
+
+def extract_image(entry):
+    if "media_content" in entry and entry.media_content:
+        return entry.media_content[0].get("url")
+    if "enclosures" in entry and entry.enclosures:
+        return entry.enclosures[0].get("href")
+    return DEFAULT_IMAGE
 
 def run():
     total_added = 0
-    for feed_info in RSS_FEEDS:
-        print(f"Fetching from {feed_info['source']}...")
-        parsed = feedparser.parse(feed_info["url"])
-        
-        # Take the top 3 latest stories per feed
-        for entry in parsed.entries[:3]:
-            source_url = getattr(entry, "link", None)
-            if not source_url:
+    for feed in RSS_FEEDS:
+        print(f"Reading feed: {feed['source']}")
+        parsed = feedparser.parse(feed["url"])
+        print(f"Found {len(parsed.entries)} entries.")
+
+        for entry in parsed.entries[:5]:  # Top 5 per source
+            link = getattr(entry, "link", None)
+            title = getattr(entry, "title", "").strip()
+            if not link or not title:
                 continue
 
-            # Check if this article already exists in Supabase
-            check = supabase.table("news").select("id").eq("source_url", source_url).execute()
-            if check.data and len(check.data) > 0:
-                print(f"Skipping (already exists): {entry.title[:30]}...")
+            # Check if duplicate
+            existing = supabase.table("news").select("id").eq("source_url", link).execute()
+            if existing.data and len(existing.data) > 0:
+                print(f"Already exists: {title[:30]}...")
                 continue
 
-            title = getattr(entry, "title", "")
-            summary_raw = getattr(entry, "summary", "") or getattr(entry, "description", "")
-            cleaned_desc = clean_html(summary_raw)
+            desc = clean_html(getattr(entry, "summary", "") or getattr(entry, "description", ""))
+            img = extract_image(entry) or DEFAULT_IMAGE
 
-            # Extract image if present
-            image_url = None
-            if "media_content" in entry and len(entry.media_content) > 0:
-                image_url = entry.media_content[0].get("url")
-            elif "enclosures" in entry and len(entry.enclosures) > 0:
-                image_url = entry.enclosures[0].get("href")
-            
-            if not image_url:
-                image_url = "https://images.unsplash.com/photo-1585829365295-ab7cd400c167?auto=format&fit=crop&w=800&q=80"
+            print(f"Summarizing: {title[:40]}...")
+            summary = summarize_urdu(title, desc or title)
 
-            print(f"Summarizing into Urdu: {title[:40]}...")
-            urdu_summary = summarize_to_urdu(title, cleaned_desc)
-
-            if not urdu_summary:
+            if not summary:
                 continue
 
-            # Insert into database
-            data = {
+            payload = {
                 "title": title,
-                "summary": urdu_summary,
-                "source_name": feed_info["source"],
-                "source_url": source_url,
-                "image_url": image_url
+                "summary": summary,
+                "source_name": feed["source"],
+                "source_url": link,
+                "image_url": img
             }
 
-            insert_res = supabase.table("news").insert(data).execute()
+            supabase.table("news").insert(payload).execute()
             print(f"Saved: {title[:30]}")
             total_added += 1
 
-    print(f"Done! Added {total_added} new articles to database.")
+    print(f"Pipeline complete. Inserted {total_added} new stories.")
 
 if __name__ == "__main__":
     run()
