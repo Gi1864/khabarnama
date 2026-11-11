@@ -37,7 +37,6 @@
       color: var(--text);
     }
 
-    /* Fixed Inshorts Top Header */
     header {
       position: fixed;
       top: 0;
@@ -68,7 +67,6 @@
       -webkit-text-fill-color: transparent;
     }
 
-    /* Full-Screen Vertical Scroll Snap Container */
     .snap-container {
       height: 100vh;
       width: 100%;
@@ -80,7 +78,6 @@
     }
     .snap-container::-webkit-scrollbar { display: none; }
 
-    /* Each Screen Is Exactly One Card */
     .story-page {
       height: 100vh;
       width: 100%;
@@ -89,7 +86,7 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      padding: 64px 16px 20px 16px; /* spacing for top navbar */
+      padding: 64px 16px 20px 16px;
     }
 
     .inshorts-card {
@@ -180,7 +177,6 @@
     }
     .action-icons i:hover { color: var(--primary); }
 
-    /* Desktop Navigation Floating Arrows */
     .desktop-arrows {
       position: fixed;
       left: 30px;
@@ -207,6 +203,17 @@
     }
     .arrow-btn:hover { background: var(--primary); color: #000; }
 
+    .status-msg {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 70vh;
+      color: var(--muted);
+      gap: 12px;
+      font-size: 1.1rem;
+    }
+
     @media (max-width: 600px) {
       .desktop-arrows { display: none; }
       .story-page { padding: 54px 0 0 0; }
@@ -230,147 +237,118 @@
     </div>
   </header>
 
-  <!-- Desktop Up / Down Controls -->
   <div class="desktop-arrows">
     <button class="arrow-btn" onclick="scrollCard(-1)" title="پچھلی خبر"><i class="fa-solid fa-chevron-up"></i></button>
     <button class="arrow-btn" onclick="scrollCard(1)" title="اگلی خبر"><i class="fa-solid fa-chevron-down"></i></button>
   </div>
 
-  <!-- Snap Scrolling Feed -->
   <main class="snap-container" id="snapContainer">
-
-    <!-- Card 1 -->
-    <section class="story-page">
-      <article class="inshorts-card">
-        <div class="card-image-box">
-          <img class="card-image" src="https://images.unsplash.com/photo-1517976487507-5b3b4b45a742?auto=format&fit=crop&w=800&q=80" alt="News 1">
-          <span class="card-tag">سائنس و ٹیکنالوجی</span>
-        </div>
-        <div class="card-body">
-          <h2 class="story-title">اسرو کا گگن یان مشن: خلا میں انسان بھیجنے کی تیاریاں حتمی مرحلے میں</h2>
-          <p class="story-desc">انڈین اسپیس ریسرچ آرگنائزیشن (ISRO) نے ملک کے پہلے انسان بردار خلائی مشن کی تیاریاں تیز کر دی ہیں۔ کریو ماڈیول کی بحفاظت واپسی اور حفاظتی نظاموں کی تمام اہم جانچیں مکمل کر لی گئی ہیں۔ ہندوستانی خلاباز بہت جلد خلائی مشن کا سفر شروع کریں گے۔</p>
-          <div class="card-footer">
-            <span>نئی دہلی • 1 گھنٹہ پہلے</span>
-            <div class="action-icons">
-              <i class="fa-solid fa-volume-high" onclick="speakText('اسرو کا گگن یان مشن')" title="سنیں"></i>
-              <i class="fa-regular fa-share-from-square" onclick="shareArticle('اسرو مشن')" title="شیئر کریں"></i>
-            </div>
-          </div>
-        </div>
-      </article>
-    </section>
-
-    <!-- Card 2 -->
-    <section class="story-page">
-      <article class="inshorts-card">
-        <div class="card-image-box">
-          <img class="card-image" src="https://images.unsplash.com/photo-1559526324-4b87b5e36e44?auto=format&fit=crop&w=800&q=80" alt="News 2">
-          <span class="card-tag">معیشت و تجارت</span>
-        </div>
-        <div class="card-body">
-          <h2 class="story-title">یو پی آئی (UPI) نے بین الاقوامی سطح پر نیا ریکارڈ قائم کیا</h2>
-          <p class="story-desc">ہندوستان کا یونیفائیڈ پیمنٹس انٹرفیس (UPI) اب فرانس، متحدہ عرب امارات، سنگاپور اور ماریشس سمیت درجنوں ممالک میں فعال ہو چکا ہے۔ بین الاقوامی مسافر اب اپنے بینک اکاؤنٹس سے براہِ راست بھارتی روپے کے ذریعے آسان ادائیگی کر سکتے ہیں۔</p>
-          <div class="card-footer">
-            <span>ممبئی • 3 گھنٹے پہلے</span>
-            <div class="action-icons">
-              <i class="fa-solid fa-volume-high" onclick="speakText('یو پی آئی نے بین الاقوامی سطح پر نیا ریکارڈ قائم کیا')" title="سنیں"></i>
-              <i class="fa-regular fa-share-from-square" onclick="shareArticle('یو پی آئی نیوز')" title="شیئر کریں"></i>
-            </div>
-          </div>
-        </div>
-      </article>
-    </section>
-
-    <!-- Card 3 -->
-    <section class="story-page">
-      <article class="inshorts-card">
-        <div class="card-image-box">
-          <img class="card-image" src="https://images.unsplash.com/photo-1531415074868-036b107e775a?auto=format&fit=crop&w=800&q=80" alt="News 3">
-          <span class="card-tag">کھیل و کرکٹ</span>
-        </div>
-        <div class="card-body">
-          <h2 class="story-title">ٹیم انڈیا کی شاندار فتح: نوجوان کھلاڑیوں نے فتح کا پرچم لہرایا</h2>
-          <p class="story-desc">ہندوستانی کرکٹ ٹیم نے شاندار مقابلہ کرتے ہوئے سیریز جیت لی ہے۔ نوجوان بلے بازوں نے میچ کے آخری لمحات میں دباؤ کو برداشت کرتے ہوئے میچ کا پانسہ پلٹ دیا۔ گیند بازوں نے نپی تلی بولنگ کا مظاہرہ کرتے ہوئے حریف کو کم اسکور پر روکا۔</p>
-          <div class="card-footer">
-            <span>کھیل ڈیسک • 4 گھنٹے پہلے</span>
-            <div class="action-icons">
-              <i class="fa-solid fa-volume-high" onclick="speakText('ٹیم انڈیا کی شاندار جیت')" title="سنیں"></i>
-              <i class="fa-regular fa-share-from-square" onclick="shareArticle('کرکٹ نیوز')" title="شیئر کریں"></i>
-            </div>
-          </div>
-        </div>
-      </article>
-    </section>
-
-    <!-- Card 4 -->
-    <section class="story-page">
-      <article class="inshorts-card">
-        <div class="card-image-box">
-          <img class="card-image" src="https://images.unsplash.com/photo-1474487548417-781cb71495f3?auto=format&fit=crop&w=800&q=80" alt="News 4">
-          <span class="card-tag">قومی خبریں</span>
-        </div>
-        <div class="card-body">
-          <h2 class="story-title">وندے بھارت ایکسپریس کے نئے روٹس کا افتتاح، سفری وقت میں بڑی کمی</h2>
-          <p class="story-desc">ہندوستانی ریلوے نے ملک بھر میں تیز رفتار سیمی ہائی اسپیڈ وندے بھارت ٹرینوں کے متعدد نئے روٹس متعارف کرائے ہیں۔ خودکار دروازوں، بہتر سیٹوں اور تیز رفتار سفر کے باعث مسافروں کے کئی گھنٹے بچ رہے ہیں۔</p>
-          <div class="card-footer">
-            <span>نئی دہلی • 6 گھنٹے پہلے</span>
-            <div class="action-icons">
-              <i class="fa-solid fa-volume-high" onclick="speakText('وندے بھارت ایکسپریس کے نئے روٹس')" title="سنیں"></i>
-              <i class="fa-regular fa-share-from-square" onclick="shareArticle('وندے بھارت')" title="شیئر کریں"></i>
-            </div>
-          </div>
-        </div>
-      </article>
-    </section>
-
+    <div class="status-msg">
+      <i class="fa-solid fa-circle-notch fa-spin fa-2x" style="color: var(--primary);"></i>
+      <p>خبریں لوڈ ہو رہی ہیں...</p>
+    </div>
   </main>
 
   <script>
-  const SUPABASE_URL = "https://YOUR_PROJECT.supabase.co";
-  const SUPABASE_ANON_KEY = "YOUR_ANON_KEY";
+    // Supabase Configuration
+    const SUPABASE_URL = "https://ddgpqqazihycjvkwrusd.supabase.co";
+    // Paste your publishable key (sb_publishable_...) below:
+    const SUPABASE_ANON_KEY = "PASTE_YOUR_SB_PUBLISHABLE_KEY_HERE";
 
-  async function loadLiveNews() {
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/news?select=*&order=created_at.desc&limit=20`, {
-      headers: {
-        "apikey": SUPABASE_ANON_KEY,
-        "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
-      }
-    });
-    const items = await res.json();
     const container = document.getElementById('snapContainer');
-    container.innerHTML = '';
 
-    if (items.length === 0) {
-      container.innerHTML = '<div style="color:white;text-align:center;padding:50px;">کوئی خبر دستیاب نہیں ہے</div>';
-      return;
+    function scrollCard(direction) {
+      const cardHeight = window.innerHeight;
+      container.scrollBy({ top: direction * cardHeight, behavior: 'smooth' });
     }
 
-    items.forEach(item => {
-      const section = document.createElement('section');
-      section.className = 'story-page';
-      section.innerHTML = `
-        <article class="inshorts-card">
-          <div class="card-image-box">
-            <img class="card-image" src="${item.image_url}" alt="News Image">
-            <span class="card-tag">${item.source_name || 'خبر'}</span>
-          </div>
-          <div class="card-body">
-            <h2 class="story-title">${item.title}</h2>
-            <p class="story-desc">${item.summary}</p>
-            <div class="card-footer">
-              <a href="${item.source_url}" target="_blank" style="color:var(--primary);text-decoration:none;">تفصیلات پڑھیں</a>
-              <button onclick="speakText('${item.title}')" style="background:none;border:none;color:white;cursor:pointer;">
-                <i class="fa-solid fa-volume-high"></i>
-              </button>
-            </div>
-          </div>
-        </article>
-      `;
-      container.appendChild(section);
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowDown') scrollCard(1);
+      if (e.key === 'ArrowUp') scrollCard(-1);
     });
-  }
 
-  loadLiveNews();
+    function speakText(text) {
+      if (!('speechSynthesis' in window)) return;
+      window.speechSynthesis.cancel();
+      const utt = new SpeechSynthesisUtterance(text);
+      utt.lang = 'ur-IN';
+      window.speechSynthesis.speak(utt);
+    }
+
+    function shareArticle(title, url) {
+      if (navigator.share) {
+        navigator.share({ title: title, url: url || window.location.href });
+      } else {
+        navigator.clipboard.writeText(url || window.location.href);
+        alert('لنک کاپی کر لیا گیا!');
+      }
+    }
+
+    async function fetchNews() {
+      try {
+        const response = await fetch(`${SUPABASE_URL}/rest/v1/news?select=*&order=created_at.desc&limit=25`, {
+          headers: {
+            "apikey": SUPABASE_ANON_KEY,
+            "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const news = await response.json();
+
+        if (!news || news.length === 0) {
+          container.innerHTML = `
+            <div class="status-msg">
+              <i class="fa-regular fa-newspaper fa-2x"></i>
+              <p>فی الحال کوئی خبر دستیاب نہیں ہے۔</p>
+            </div>
+          `;
+          return;
+        }
+
+        container.innerHTML = '';
+        news.forEach(item => {
+          const page = document.createElement('section');
+          page.className = 'story-page';
+          page.innerHTML = `
+            <article class="inshorts-card">
+              <div class="card-image-box">
+                <img class="card-image" src="${item.image_url || 'https://images.unsplash.com/photo-1585829365295-ab7cd400c167?auto=format&fit=crop&w=800&q=80'}" alt="News Image">
+                <span class="card-tag">${item.source_name || 'قومی'}</span>
+              </div>
+              <div class="card-body">
+                <div>
+                  <h2 class="story-title">${item.title}</h2>
+                  <p class="story-desc">${item.summary}</p>
+                </div>
+                <div class="card-footer">
+                  <a href="${item.source_url}" target="_blank" style="color:var(--primary);text-decoration:none;font-weight:600;">مکمل خبر پڑھیں</a>
+                  <div class="action-icons">
+                    <i class="fa-solid fa-volume-high" onclick="speakText('${item.title}')" title="سنیں"></i>
+                    <i class="fa-regular fa-share-from-square" onclick="shareArticle('${item.title}', '${item.source_url}')" title="شیئر"></i>
+                  </div>
+                </div>
+              </div>
+            </article>
+          `;
+          container.appendChild(page);
+        });
+
+      } catch (err) {
+        console.error("Fetch error:", err);
+        container.innerHTML = `
+          <div class="status-msg">
+            <i class="fa-solid fa-triangle-exclamation fa-2x" style="color: #ef4444;"></i>
+            <p>خبریں لوڈ کرنے میں مسئلہ پیش آیا۔ براہِ کرم API Key چیک کریں۔</p>
+          </div>
+        `;
+      }
+    }
+
+    fetchNews();
   </script>
 </body>
 </html>
