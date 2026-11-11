@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html lang="ur" dir="rtl">
-  <link rel="manifest" href="manifest.json">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>خبر نامہ | Inshorts Urdu</title>
 
+  <link rel="manifest" href="manifest.json">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;600;700&display=swap" rel="stylesheet">
@@ -251,10 +251,8 @@
   </main>
 
   <script>
-    // Supabase Configuration
     const SUPABASE_URL = "https://ddgpqqazihycjvkwrusd.supabase.co";
-    // Paste your publishable key (sb_publishable_...) below:
-    const SUPABASE_ANON_KEY = "PASTE_YOUR_SB_PUBLISHABLE_KEY_HERE";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRkZ3BxcWF6aWh5Y2p2a3dydXNkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQ0MDIxNTksImV4cCI6MjEwOTk3ODE1OX0.1Y_en06XpkwuekO9ciVYwPCGcJPWypviAmwuSAjNalc";
 
     const container = document.getElementById('snapContainer');
 
@@ -326,7 +324,7 @@
                   <p class="story-desc">${item.summary}</p>
                 </div>
                 <div class="card-footer">
-                  <a href="${item.source_url}" target="_blank" style="color:var(--primary);text-decoration:none;font-weight:600;">مکمل خبر پڑھیں</a>
+                  <a href="${item.source_url || '#'}" target="_blank" style="color:var(--primary);text-decoration:none;font-weight:600;">مکمل خبر پڑھیں</a>
                   <div class="action-icons">
                     <i class="fa-solid fa-volume-high" onclick="speakText('${item.title}')" title="سنیں"></i>
                     <i class="fa-regular fa-share-from-square" onclick="shareArticle('${item.title}', '${item.source_url}')" title="شیئر"></i>
