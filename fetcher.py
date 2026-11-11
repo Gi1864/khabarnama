@@ -4,7 +4,7 @@ import feedparser
 import google.generativeai as genai
 from supabase import create_client, Client
 
-# Environment variables
+# Read secrets
 SUPABASE_URL = os.environ.get("SUPABASE_URL", "").strip().strip("'\"")
 SUPABASE_KEY = os.environ.get("SUPABASE_SERVICE_ROLE_KEY", "").strip().strip("'\"")
 GEMINI_KEY = os.environ.get("GEMINI_API_KEY", "").strip().strip("'\"")
@@ -12,12 +12,12 @@ GEMINI_KEY = os.environ.get("GEMINI_API_KEY", "").strip().strip("'\"")
 if not SUPABASE_URL or not SUPABASE_KEY or not GEMINI_KEY:
     raise ValueError("Missing one or more required environment variables.")
 
-# Clients
+# Connect clients
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 genai.configure(api_key=GEMINI_KEY)
 model = genai.GenerativeModel("gemini-1.5-flash")
 
-# Top Indian News RSS Feeds
+# Verified Indian news feeds
 RSS_FEEDS = [
     {
         "source": "گوگل نیوز اردو",
@@ -41,7 +41,7 @@ def summarize_urdu(title, description):
     You are an Urdu news editor for a mobile Inshorts-style app in India.
     Summarize this news article strictly in high quality, modern Urdu.
     Length: exactly 40 to 60 words.
-    Return ONLY the Urdu summary text. No greetings, no English, no markdown formatting.
+    Return ONLY the Urdu summary text. No headings, no English, no greetings.
 
     Title: {title}
     Details: {description}
@@ -67,13 +67,13 @@ def run():
         parsed = feedparser.parse(feed["url"])
         print(f"Found {len(parsed.entries)} entries.")
 
-        for entry in parsed.entries[:5]:  # Top 5 per source
+        for entry in parsed.entries[:5]:
             link = getattr(entry, "link", None)
             title = getattr(entry, "title", "").strip()
             if not link or not title:
                 continue
 
-            # Check if duplicate
+            # Check for duplicates
             existing = supabase.table("news").select("id").eq("source_url", link).execute()
             if existing.data and len(existing.data) > 0:
                 print(f"Already exists: {title[:30]}...")
