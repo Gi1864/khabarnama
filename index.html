@@ -2,7 +2,7 @@
 <html lang="ur" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>خبر نامہ | Inshorts Urdu</title>
 
   <link rel="manifest" href="manifest.json">
@@ -15,12 +15,12 @@
     :root {
       --primary: #ff9933;
       --secondary: #138808;
-      --bg: #0b1120;
-      --card-bg: #1e293b;
+      --bg: #090e1a;
+      --card-bg: #151f32;
       --text: #f8fafc;
       --desc-text: #e2e8f0;
       --muted: #94a3b8;
-      --border: #334155;
+      --border: #223049;
     }
 
     * {
@@ -31,7 +31,7 @@
     }
 
     html, body {
-      height: 100%;
+      height: 100dvh;
       width: 100%;
       overflow: hidden;
       font-family: 'Noto Nastaliq Urdu', serif, Tahoma, sans-serif;
@@ -44,14 +44,14 @@
       top: 0;
       left: 0;
       right: 0;
-      height: 56px;
-      background: rgba(11, 17, 32, 0.95);
+      height: 54px;
+      background: rgba(9, 14, 26, 0.98);
       backdrop-filter: blur(8px);
       border-bottom: 1px solid var(--border);
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0 18px;
+      padding: 0 16px;
       z-index: 100;
     }
 
@@ -60,7 +60,7 @@
       align-items: center;
       gap: 8px;
       font-weight: 700;
-      font-size: 1.2rem;
+      font-size: 1.25rem;
     }
 
     .brand-text {
@@ -69,8 +69,36 @@
       -webkit-text-fill-color: transparent;
     }
 
+    .header-meta {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      direction: ltr;
+      font-family: system-ui, -apple-system, sans-serif;
+    }
+
+    .brand-en {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #f1f5f9;
+      letter-spacing: 0.4px;
+    }
+
+    .live-clock {
+      font-size: 0.76rem;
+      color: var(--primary);
+      background: rgba(255, 153, 51, 0.1);
+      border: 1px solid rgba(255, 153, 51, 0.25);
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+      white-space: nowrap;
+    }
+
     .snap-container {
-      height: 100vh;
+      margin-top: 54px;
+      height: calc(100dvh - 54px);
       width: 100vw;
       overflow-y: scroll;
       scroll-snap-type: y mandatory;
@@ -81,36 +109,35 @@
     .snap-container::-webkit-scrollbar { display: none; }
 
     .story-page {
-      height: 100vh;
+      height: calc(100dvh - 54px);
       width: 100%;
       scroll-snap-align: start;
       scroll-snap-stop: always;
       display: flex;
       justify-content: center;
-      align-items: center;
-      padding: 68px 16px 16px 16px;
+      align-items: stretch;
+      padding: 10px 14px 12px 14px;
     }
 
     .inshorts-card {
       width: 100%;
-      max-width: 460px;
+      max-width: 480px;
       height: 100%;
-      max-height: 640px;
       background: var(--card-bg);
       border: 1px solid var(--border);
-      border-radius: 20px;
-      padding: 22px 20px;
+      border-radius: 18px;
+      padding: 18px 18px 14px 18px;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
     }
 
     .card-top {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding-bottom: 10px;
+      padding-bottom: 8px;
       border-bottom: 1px solid var(--border);
     }
 
@@ -129,7 +156,7 @@
       display: flex;
       flex-direction: column;
       justify-content: flex-start;
-      padding: 16px 0 10px 0;
+      padding: 14px 2px 8px 2px;
       overflow-y: auto;
       scrollbar-width: none;
     }
@@ -139,7 +166,7 @@
       font-size: 1.25rem;
       font-weight: 700;
       line-height: 2.1;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
       color: #ffffff;
     }
 
@@ -154,7 +181,7 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding-top: 12px;
+      padding-top: 10px;
       border-top: 1px solid var(--border);
       font-size: 0.85rem;
       color: var(--muted);
@@ -220,20 +247,22 @@
 
     @media (max-width: 600px) {
       .desktop-arrows { display: none; }
-      .story-page { padding: 62px 12px 12px 12px; }
+      .story-page { padding: 8px 10px 10px 10px; }
       .inshorts-card {
-        max-height: 100%;
-        border-radius: 16px;
-        padding: 18px 16px;
+        border-radius: 14px;
+        padding: 14px 14px 10px 14px;
       }
       .story-title {
         font-size: 1.18rem;
         line-height: 2.0;
+        margin-bottom: 8px;
       }
       .story-desc {
         font-size: 1.0rem;
         line-height: 2.2;
       }
+      .brand-en { font-size: 0.88rem; }
+      .live-clock { font-size: 0.72rem; padding: 2px 6px; }
     }
   </style>
 </head>
@@ -244,8 +273,9 @@
       <span>🇮🇳</span>
       <span class="brand-text">خبر نامہ</span>
     </div>
-    <div style="font-size: 0.9rem; font-weight: 600; color: var(--muted); letter-spacing: 0.5px; font-family: sans-serif;">
-      Khabarnama
+    <div class="header-meta">
+      <span class="brand-en">Khabarnama</span>
+      <span class="live-clock" id="liveClock">--:--</span>
     </div>
   </header>
 
@@ -267,8 +297,25 @@
 
     const container = document.getElementById('snapContainer');
 
+    // Live Date & Time Updater
+    function updateClock() {
+      const clockEl = document.getElementById('liveClock');
+      if (!clockEl) return;
+      const now = new Date();
+      const options = { 
+        day: 'numeric', 
+        month: 'short', 
+        hour: '2-digit', 
+        minute: '2-digit', 
+        hour12: true 
+      };
+      clockEl.textContent = now.toLocaleDateString('en-IN', options);
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
     function scrollCard(direction) {
-      const cardHeight = window.innerHeight;
+      const cardHeight = container.clientHeight;
       container.scrollBy({ top: direction * cardHeight, behavior: 'smooth' });
     }
 
